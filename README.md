@@ -1,0 +1,834 @@
+[quiz.html](https://github.com/user-attachments/files/32514841/quiz.html)
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>COS 101.1 Practice Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F1ECDD;
+    --panel: #FBF8EE;
+    --panel-border: #D9D0B5;
+    --text: #262319;
+    --text-dim: #746C57;
+    --key-surface: #FFFDF6;
+    --key-border: #D2C8A9;
+    --key-shadow: #B9AD87;
+    --accent: #B87A22;
+    --accent-soft: #E7D4AC;
+    --correct: #3E8F5F;
+    --correct-soft: #D9EEDF;
+    --incorrect: #B44632;
+    --incorrect-soft: #F3DCD5;
+    --badge-bg: #ECE2C4;
+    --overlay: rgba(38, 35, 25, 0.55);
+    --mono: "IBM Plex Mono", SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12161F;
+      --panel: #1B2131;
+      --panel-border: #2C3448;
+      --text: #EAE5D6;
+      --text-dim: #8D95AA;
+      --key-surface: #202940;
+      --key-border: #333D57;
+      --key-shadow: #0B0F17;
+      --accent: #E1A455;
+      --accent-soft: #3B3122;
+      --correct: #6FCB93;
+      --correct-soft: #1E3229;
+      --incorrect: #E17A63;
+      --incorrect-soft: #3A2420;
+      --badge-bg: #283252;
+      --overlay: rgba(5, 7, 12, 0.65);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #12161F;
+    --panel: #1B2131;
+    --panel-border: #2C3448;
+    --text: #EAE5D6;
+    --text-dim: #8D95AA;
+    --key-surface: #202940;
+    --key-border: #333D57;
+    --key-shadow: #0B0F17;
+    --accent: #E1A455;
+    --accent-soft: #3B3122;
+    --correct: #6FCB93;
+    --correct-soft: #1E3229;
+    --incorrect: #E17A63;
+    --incorrect-soft: #3A2420;
+    --badge-bg: #283252;
+    --overlay: rgba(5, 7, 12, 0.65);
+  }
+
+  * { box-sizing: border-box; }
+  html {
+    scroll-padding-top: env(safe-area-inset-top, 0px);
+  }
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    -webkit-tap-highlight-color: transparent;
+  }
+  #app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    max-width: 620px;
+    margin: 0 auto;
+  }
+
+  header {
+    padding: 18px 18px 10px;
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    background: var(--bg);
+    z-index: 5;
+  }
+  .brand {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .brand h1 {
+    font-family: var(--mono);
+    font-size: 15px;
+    letter-spacing: 0.02em;
+    margin: 0;
+    font-weight: 600;
+  }
+  .brand .course {
+    color: var(--accent);
+  }
+  .score-pill {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin: 4px 0 14px;
+  }
+  .progress-track {
+    height: 6px;
+    background: var(--key-surface);
+    border: 1px solid var(--panel-border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.25s ease;
+  }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 6px;
+  }
+  .progress-label button {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    background: none;
+    border: none;
+    text-decoration: underline;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  main {
+    flex: 1;
+    padding: 6px 18px 24px;
+  }
+
+  .qcard {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    padding: 20px 18px 18px;
+  }
+  .qnum {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+  .qtext {
+    font-size: 17px;
+    line-height: 1.5;
+    margin: 0 0 18px;
+    font-weight: 500;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .opt {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    text-align: left;
+    background: var(--key-surface);
+    border: 1px solid var(--key-border);
+    border-bottom: 3px solid var(--key-shadow);
+    border-radius: 8px;
+    padding: 11px 13px;
+    font-family: var(--sans);
+    font-size: 15px;
+    color: var(--text);
+    cursor: pointer;
+    transition: transform 0.08s ease, border-color 0.15s ease, background 0.15s ease;
+  }
+  .opt:active {
+    transform: translateY(1px);
+    border-bottom-width: 2px;
+  }
+  .opt .badge {
+    flex: 0 0 auto;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 12px;
+    background: var(--badge-bg);
+    border-radius: 5px;
+    color: var(--text);
+  }
+  .opt .otext { flex: 1; }
+  .opt[disabled] { cursor: default; }
+  .opt.correct {
+    background: var(--correct-soft);
+    border-color: var(--correct);
+    border-bottom-color: var(--correct);
+  }
+  .opt.correct .badge { background: var(--correct); color: #fff; }
+  .opt.incorrect {
+    background: var(--incorrect-soft);
+    border-color: var(--incorrect);
+    border-bottom-color: var(--incorrect);
+  }
+  .opt.incorrect .badge { background: var(--incorrect); color: #fff; }
+  .opt.faded { opacity: 0.55; }
+
+  .feedback {
+    margin-top: 14px;
+    font-size: 13.5px;
+    font-family: var(--mono);
+    color: var(--text-dim);
+    min-height: 18px;
+  }
+  .feedback.is-correct { color: var(--correct); }
+  .feedback.is-incorrect { color: var(--incorrect); }
+
+  footer {
+    position: sticky;
+    bottom: env(safe-area-inset-bottom, 0px);
+    background: var(--bg);
+    padding: 10px 18px calc(14px + env(safe-area-inset-bottom, 0px));
+    display: flex;
+    gap: 10px;
+    border-top: 1px solid var(--panel-border);
+  }
+  .btn {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 14px;
+    border-radius: 8px;
+    padding: 12px 14px;
+    border: 1px solid var(--panel-border);
+    background: var(--key-surface);
+    color: var(--text);
+    cursor: pointer;
+  }
+  .btn:disabled { opacity: 0.4; cursor: default; }
+  .btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #241a08;
+    flex: 1;
+  }
+  :root[data-theme="dark"] .btn.primary,
+  @media (prefers-color-scheme: dark) { .btn.primary { color: #1B1305; } }
+  .btn.ghost { background: none; }
+  .btn.grid-toggle { width: 46px; flex: 0 0 auto; font-family: var(--mono); }
+
+  /* Overview grid overlay */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--overlay);
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 20;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .overlay.open { display: flex; }
+  .sheet {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-bottom: none;
+    border-radius: 14px 14px 0 0;
+    width: 100%;
+    max-width: 620px;
+    max-height: 78vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid var(--panel-border);
+  }
+  .sheet-head h2 {
+    font-family: var(--mono);
+    font-size: 13px;
+    margin: 0;
+    font-weight: 600;
+  }
+  .sheet-head button {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .legend {
+    display: flex;
+    gap: 14px;
+    padding: 10px 16px;
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: var(--mono);
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .dot { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+  .dot.n { background: var(--key-surface); border: 1px solid var(--key-border); }
+  .dot.c { background: var(--correct); }
+  .dot.w { background: var(--incorrect); }
+  .qgrid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 7px;
+    padding: 6px 16px 20px;
+    overflow-y: auto;
+  }
+  .qgrid button {
+    aspect-ratio: 1;
+    border-radius: 6px;
+    border: 1px solid var(--key-border);
+    background: var(--key-surface);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 11px;
+    cursor: pointer;
+  }
+  .qgrid button.correct { background: var(--correct); border-color: var(--correct); color: #fff; }
+  .qgrid button.incorrect { background: var(--incorrect); border-color: var(--incorrect); color: #fff; }
+  .qgrid button.current { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  /* Results screen */
+  .results {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    padding: 26px 20px;
+    text-align: center;
+  }
+  .results .big {
+    font-family: var(--mono);
+    font-size: 44px;
+    font-weight: 700;
+    color: var(--accent);
+    margin: 6px 0 2px;
+  }
+  .results .sub { color: var(--text-dim); font-size: 13px; margin-bottom: 18px; }
+  .review-list {
+    text-align: left;
+    margin-top: 18px;
+    border-top: 1px solid var(--panel-border);
+    padding-top: 14px;
+  }
+  .review-list h3 {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    margin: 0 0 10px;
+    font-weight: 600;
+  }
+  .review-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--panel-border);
+    font-size: 13.5px;
+    gap: 10px;
+  }
+  .review-item:last-child { border-bottom: none; }
+  .review-item button {
+    background: none;
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 4px 8px;
+    cursor: pointer;
+    flex: 0 0 auto;
+  }
+  .hidden { display: none !important; }
+
+  @media (max-width: 360px) {
+    .qtext { font-size: 16px; }
+    .qgrid { grid-template-columns: repeat(6, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header>
+    <div class="brand">
+      <h1><span class="course">COS 101.1</span> · Practice Quiz</h1>
+      <div class="score-pill" id="scorePill">Score 0/0</div>
+    </div>
+    <div class="subtitle">Introduction to Computing Science — 100 questions</div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-label">
+      <span id="progressText">Question 1 of 100</span>
+      <button id="resetLink" type="button">Restart quiz</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="qcard" id="qcard">
+      <p class="qnum" id="qnum">Q01</p>
+      <p class="qtext" id="qtext"></p>
+      <div class="options" id="options"></div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+
+    <div class="results hidden" id="results">
+      <div class="sub">You scored</div>
+      <div class="big" id="finalScore">0/100</div>
+      <div class="sub" id="finalPct">0%</div>
+      <div class="btn primary" id="retakeBtn" role="button" tabindex="0" style="display:inline-block;">Retake quiz</div>
+      <div class="review-list" id="reviewList">
+        <h3>Questions to review</h3>
+        <div id="reviewItems"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer id="footerNav">
+    <button class="btn ghost" id="prevBtn">Prev</button>
+    <button class="btn grid-toggle" id="gridBtn" title="Jump to question">▦</button>
+    <button class="btn primary" id="nextBtn">Next</button>
+  </footer>
+
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h2>Jump to a question</h2>
+      <button id="closeOverlay">Close</button>
+    </div>
+    <div class="legend">
+      <span><i class="dot n"></i>Unanswered</span>
+      <span><i class="dot c"></i>Correct</span>
+      <span><i class="dot w"></i>Incorrect</span>
+    </div>
+    <div class="qgrid" id="qgrid"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var QUESTIONS = [
+["Tunde was to develop a general application software for the University of Port Harcourt. Which of these is most likely the software?", ["Operating System","Learning Management Software","Microsoft PowerPoint","MCF Result Processing System"], 1],
+["Israel intends to capture the wanted screen on the window. Which key combination can conveniently achieve this?", ["Prt Sc","Alt + F4","Ctrl + F12","Alt + Prt Sc"], 3],
+["A key that performs a special task is called a", ["F8 Key","Control Key","Function Key","Special Key"], 2],
+["Which key is usually used with an LCD projector/dual monitor device?", ["F8 Key","F9 Key","F6 Key","F4 Key"], 0],
+["Which key is used to go to a new paragraph?", ["Control Key","Shift Key","Enter Key","Delete Key"], 2],
+["Ctrl+Alt+Del is used for", ["Exiting MS Word","Task Manager","Showing the Help Menu","Scrolling Down"], 1],
+["CAPS, NUM and Scroll are often referred to as", ["Locking Keys","Helping Keys","Scroll\u2013Num\u2013Cap Keys","Special Keys"], 0],
+["Mary intends to write her surname in upper case and the remaining name in lower case. Which key combination will help?", ["Ctrl + Locking Key, or Shift + F3","Fn + Helping Key, or Shift + F3","Function + Alt Key, or Shift + F3","Shift + Alphabetical Key, or Shift + F3"], 2],
+["The title bar contains", ["Save, Close and Open buttons","the minimize button, the maximize/restore button and the close button","the Menu Bar, Text Area and Cursor","Justify, Center and numbering"], 1],
+["In what ribbon and group can Bold, Italic and Underline be found?", ["Insert and Illustrations","Design and Font","Home and Font","Home and Style"], 2],
+["How many types of alignment do we have in Microsoft Word?", ["1","2","3","4"], 3],
+["To view a header and footer, you must switch to", ["Normal View","Print Layout View","Print Preview mode","Both B and C"], 3],
+["What happens when you press Ctrl + V on the keyboard?", ["A capital V is typed into your document at the cursor point","The selected item is pasted from the clipboard","The selected item is copied to the clipboard","The selected drawing objects are distributed vertically on the page"], 1],
+["The shortcut for centrally aligning text is", ["Ctrl+C","Ctrl+L","Ctrl+E","Ctrl+R"], 2],
+["Change the ______ to create a document in wide format.", ["Page Margins","Paper Style","Page Orientation","Paper Source"], 2],
+["What is the default file extension for all Word documents?", [".txts",".word",".docs",".docx"], 3],
+["Which key shortcut is used for printing a document in Word?", ["Ctrl+P","Ctrl+R","Alt+P","Alt+R"], 0],
+["To save an existing document with a different name, you need to", ["Retype the document and give it a different name","Use the 'Save As' command","Copy and paste the original document into a new one, then save","Use Windows Explorer to copy the document to a different location and rename it"], 1],
+["Replacing a word with another word throughout a document can be done using", ["Cut and Paste","Find and Replace","Copy and Paste","Go"], 1],
+["______ is a collection of predefined design elements and colour schemes.", ["Feature","Hyperlink","Palette","Theme"], 3],
+["Which of the following is a graphics solution for word processors?", ["Clip Art","WordArt","Drop Cap","All of the above"], 3],
+["The keyboard shortcut for creating a new document is", ["Alt+N","Ctrl+N","Alt+D","Ctrl+D"], 1],
+["Portrait and Landscape are types of", ["Paper Size","Page Layout","Page Orientation","None of the above"], 2],
+["What is the shortcut key to 'Undo' the last action in a document?", ["Ctrl + X","Ctrl + Y","Ctrl + Z","Ctrl + U"], 2],
+["The Thesaurus tool in MS Word is used for", ["Spelling suggestions","Grammar options","Synonyms and antonyms","All of the above"], 2],
+["The keyboard shortcut for justifying alignment is", ["Ctrl+A","Ctrl+Y","Ctrl+J","Ctrl+N"], 2],
+["What are the smallest and largest font sizes on the formatting toolbar?", ["8 and 72","8 and 64","12 and 72","None of the above"], 0],
+["Superscript, subscript, outline, emboss and engrave are known as", ["Font styles","Font effects","WordArt","Text effects"], 1],
+["If a word is typed that is not in Word's dictionary, a ____ wavy underline appears below it.", ["Red","Green","Blue","Black"], 0],
+["Which of these enables us to send the same letter to different persons?", ["Macros","Mail Merge","Template","None"], 1],
+["To delete an incorrect character in a document, ____ to erase to the right of the insertion point.", ["press the left mouse key","double-click the right mouse key","press the Backspace key","press the Delete key"], 3],
+["Which of the following is not an essential component of a mail merge?", ["Main document","Data source","Merge fields","Word fields"], 3],
+["The keyboard shortcut for the Redo command is", ["Ctrl + R","Ctrl + Y","Ctrl + J","Alt + R"], 1],
+["From where can you access the Save command?", ["Home tab","Insert tab","Review tab","None of the above"], 3],
+["MS Excel 2019 has a row limit of", ["1,048,576","4,810,576","16,384","157,648"], 0],
+["MS Excel 2019 has a maximum column width limit of ____ characters.", ["256","512","255","128"], 2],
+["Formulas in Excel start with", ["/","f","-","="], 3],
+["A file that contains one or more worksheets to organise data is known as a", ["Workbook","Excel book","Datasheet","Spreadsheet"], 0],
+["How are cells named in MS Excel?", ["Using the rename option","Using the Name Box","By double-clicking on the sheet name","By double-clicking on the cell and naming it"], 1],
+["The intersection of a column and a row in an MS Excel worksheet is known as a", ["Row","Cell","Column","Tab"], 1],
+["In Microsoft Excel spreadsheets, rows are labelled as", ["1, 2, 3, ...","A, B, C, ...","A1, B1, C1, ...","I, II, III, ..."], 0],
+["The ____ function in an MS Excel worksheet represents the total number of entries in the cell(s).", ["Sum","Avg","Count","Total"], 2],
+["Which of the following is NOT a function in Microsoft Excel?", ["Hyperlink","Countif","Min","Avg"], 0],
+["The ____ feature of MS Excel quickly completes a series of data.", ["Auto Filter","Auto Complete","Auto Fill","Auto Sum"], 2],
+["In MS Excel, the Page Border option is available under the ____ tab.", ["Insert","Page Layout","View","None of the above"], 1],
+["The cell that denotes the current position of the insertion point is known as the", ["Active cell","Passive cell","Normal cell","Dominant cell"], 0],
+["Worksheet columns are labelled in alphabetical order from A to", ["AA","XFD","AB","AC"], 1],
+["How many types of data can be entered into Microsoft Excel?", ["5","2","4","3"], 3],
+["In Microsoft Excel, while entering values, ____ and ____ should be avoided.", ["commas and dollar signs","percentage and division signs","modulus and slash","commas and full stops"], 3],
+["In Microsoft Excel, by default, labels are ____ aligned while values, time and date are ____ aligned.", ["left, right","center, left","right, left","center, right"], 0],
+["A predefined or built-in formula in Microsoft Excel is known as a", ["Addition","Function","Column Entry","Cell Extension"], 1],
+["In Microsoft Excel, if A2=12, A5=6 and B3=2, what is the result of =((A2/4)+(A5-B3))*5?", ["45","35","40","55"], 1],
+["What happens when you enter more data than a cell can display?", ["Excel will either truncate the display of the label or extend it into the next cell","Excel will automatically copy the data into the next cell","Excel will automatically cut the data into the cell","Both A and B"], 0],
+["To auto-fill, the mouse pointer changes to a", ["red plus sign","black plus sign","red-black plus sign","None of the above"], 1],
+["Under what ribbon and group can the Watermark button be found in Microsoft Word?", ["Home, Page Background","Insert, Illustrations","Design, Page Background","Layout, Page Setup"], 1],
+["How best can you differentiate the Break command under the Insert ribbon from Next Page under the Breaks command in the Layout group?", ["Break under Insert ends the current page and moves to the next, while Next Page under Breaks in the Layout group inserts a section break and starts a new section","Break under Insert continues the current page and moves to the next, while Next Page under Breaks continues a section break and ends the section","Break under Insert resumes the current page and moves to the next, while Next Page under Breaks continues a section break and ends the section","Break under Insert increases the space on the current page, while Next Page under Breaks reduces the space and ends the section"], 0],
+["____ and ____ are examples of operating systems.", ["Windows 7 and Microsoft Word","Windows Vista and Microsoft Word","Windows 8 and CorelDRAW","Windows 7 and Linux"], 3],
+["Which of the following is an example of primary memory?", ["Hard disk and CD-ROM","Flash drive and hard disk","ROM and RAM","None of the above"], 2],
+["A function can accept a maximum of ____ arguments.", ["15","45","30","50"], 2],
+["When computing a function in Excel, arguments must be ____ by ____.", ["enclosed, in parentheses","followed, by a full stop","enclosed, in commas","enclosed, by a dash"], 0],
+["One of the simplest and easiest methods to create a chart is by using the", ["Chart Wizard","Design menu","Insert menu","None of the above"], 0],
+["Which of the following colour modes is/are supported by CorelDRAW?", ["CMYK Colour (32 bit)","Lab Colour (32 bit)","Palette (8 bit)","All of the above"], 3],
+["Promise intends to design a logo for his company. Which of these packages can be suitably used for the task?", ["Microsoft Word","Microsoft Excel","CorelDRAW","All of the above"], 2],
+["The button in CorelDRAW that provides features about the command selected is the", ["Standard toolbar","Property toolbar","Title bar","Menu bar"], 1],
+["The tool that helps you select an object is the", ["Shape tool","Zoom tool","Pick tool","Rectangle tool"], 2],
+["To cut out an unnecessary part of your drawing, the ____ is used.", ["Shape tool","Knife tool","Eraser tool","Pan tool"], 1],
+["____ is used to zoom in while working in CorelDRAW.", ["F2","F3","F5","F1"], 0],
+["The default size for the design of a complimentary card is", ["2.0 by 1.5","2.0 by 2.0","3.0 by 2.0","5.0 by 3.0"], 2],
+["Which tool is NOT a basic drawing tool in a 2D image program?", ["Eyedropper","Bezier","Freehand","Pencil"], 0],
+["Which shortcut key combination can be used to perform a warm boot?", ["Ctrl+Shift+L","Ctrl+Shift+<","Ctrl+<right arrow>","Ctrl+Alt+Del"], 3],
+["Which CorelDRAW tool allows you to merge objects?", ["Eyedropper tool","Interactive Blend tool","Blend tool","Interactive Fill tool"], 2],
+["The use of vacuum tubes as the major component of a computer was introduced in the ____ generation of computers.", ["First Generation","Second Generation","Third Generation","Fourth Generation"], 0],
+["Which of the following is the extension of Notepad?", [".txt",".xls",".ppt",".bmp"], 0],
+["Portrait and Landscape are", ["Page Orientation","Paper Size","Page Layout","All of the above"], 0],
+["If you need to change the typeface of a document, which menu will you choose?", ["Edit","View","Format","Tools"], 2],
+["Which of the following is NOT a font style?", ["Bold","Italics","Regular","Superscript"], 3],
+["How can you disable extended selection mode?", ["Press Del to disable","Press F8 again to disable","Press Esc to disable","Press Enter to disable"], 2],
+["What is the smallest and largest font size available in the Font Size tool on the formatting toolbar?", ["8 and 72","8 and 64","12 and 72","12 and 64"], 0],
+["What is the maximum font size you can apply to any character?", ["163","1638","16038","None of the above"], 1],
+["A character that is raised and smaller above the baseline is known as", ["Superscript","Raised","Outlined","Subscript"], 0],
+["What is the purpose of inserting a header and footer in a document?", ["To mark the starting and ending of a page","To enhance the overall appearance of the document","To allow page headers and footers to appear on the document when printed","To make a large document more readable"], 2],
+["From which menu can you insert a header and footer?", ["Format menu","View menu","Tools menu","Insert menu"], 3],
+["From which menu can you insert a header and footer?", ["Format menu","View menu","Tools menu","Insert menu"], 3],
+["What type of chart is good for a single series of data?", ["Column Chart","Line Chart","Pie Chart","Cone Chart"], 2],
+["What do you use to create a chart?", ["Pie Wizard","Excel Wizard","Data Wizard","Chart Wizard"], 3],
+["Bayo intends to present a report from a conference he attended. Which application software will conveniently achieve this task?", ["Microsoft PowerPoint","Microsoft Excel","Microsoft Word","Microsoft Visualization"], 0],
+["In Excel, rows are labelled as", ["A, B, C, etc.","1, 2, 3, etc.","A1, A2, etc.","$A$1, $A$2, etc."], 1],
+["The ____ feature of MS Excel quickly completes a series of data.", ["Auto Complete","Auto Fill","Fill Handle","Sorting"], 1],
+["Which function in Excel checks whether a condition is true or not?", ["SUM","COUNT","IF","AVERAGE"], 2],
+["Which bar shows the formula used in the selected active cell?", ["Formula bar","Ribbon","Menu bar","Scroll bar"], 0],
+["To get to the 'Symbol' dialog box, click on the ____ menu and choose 'Symbol'.", ["Tools","Table","Insert","Format"], 2],
+["What is the meaning of booting a system?", ["Restarting the computer","Installing a program","Scanning the system","Turning off the system"], 0],
+["Which of the following can be referred to as temporary storage?", ["ROM","Hard disk","Flash drive","RAM"], 3],
+["The Pascaline machine was developed by ____ in the year ____.", ["Charles Babbage, 1662","ABC, 1864","Blaise Pascal, 1642","None of the above"], 2],
+["Which of these computers is suitable for performing complex calculations?", ["Micro computer","Mini computer","Super computer","Mainframe computer"], 2],
+["Software are generally classified into ____ groups.", ["1","2","3","4"], 1],
+["An executable instruction in the form of 0s and 1s (or hexadecimal) can be regarded as", ["Assembly language","High-level language","Machine language"], 2],
+["When data has been transformed into a meaningful form, we regard it as", ["Reformed data","Transformed data","Information","None of the above"], 2],
+["The main views for a table in MS Access are", ["Datasheet view and Design view","Transform view and Design view","Current view and Datasheet view","All of the above"], 0],
+["____ acts as an interface between the user and the computer.", ["Translator","Editor","Operating System","Utility Software"], 2]
+  ];
+
+  var TOTAL = QUESTIONS.length;
+  var LETTERS = ["A", "B", "C", "D", "E"];
+  var STORAGE_KEY = "cos101_quiz_v1";
+
+  var state = {
+    index: 0,
+    answers: new Array(TOTAL).fill(null) // null = unanswered, else selected option index
+  };
+
+  function loadState() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      var saved = JSON.parse(raw);
+      if (saved && Array.isArray(saved.answers) && saved.answers.length === TOTAL) {
+        state.answers = saved.answers;
+        state.index = typeof saved.index === "number" ? saved.index : 0;
+      }
+    } catch (e) { /* ignore, start fresh */ }
+  }
+
+  function saveState() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) { /* storage unavailable, continue in-memory */ }
+  }
+
+  var qnum = document.getElementById("qnum");
+  var qtext = document.getElementById("qtext");
+  var options = document.getElementById("options");
+  var feedback = document.getElementById("feedback");
+  var progressFill = document.getElementById("progressFill");
+  var progressText = document.getElementById("progressText");
+  var scorePill = document.getElementById("scorePill");
+  var prevBtn = document.getElementById("prevBtn");
+  var nextBtn = document.getElementById("nextBtn");
+  var gridBtn = document.getElementById("gridBtn");
+  var overlay = document.getElementById("overlay");
+  var closeOverlay = document.getElementById("closeOverlay");
+  var qgrid = document.getElementById("qgrid");
+  var qcard = document.getElementById("qcard");
+  var results = document.getElementById("results");
+  var finalScore = document.getElementById("finalScore");
+  var finalPct = document.getElementById("finalPct");
+  var reviewItems = document.getElementById("reviewItems");
+  var retakeBtn = document.getElementById("retakeBtn");
+  var resetLink = document.getElementById("resetLink");
+  var footerNav = document.getElementById("footerNav");
+
+  function scoreCount() {
+    var s = 0;
+    for (var i = 0; i < TOTAL; i++) {
+      var a = state.answers[i];
+      if (a !== null && a === QUESTIONS[i][2]) s++;
+    }
+    return s;
+  }
+
+  function answeredCount() {
+    var c = 0;
+    for (var i = 0; i < TOTAL; i++) if (state.answers[i] !== null) c++;
+    return c;
+  }
+
+  function renderHeader() {
+    var idx = state.index;
+    progressText.textContent = "Question " + (idx + 1) + " of " + TOTAL;
+    progressFill.style.width = (((idx) / (TOTAL - 1)) * 100).toFixed(1) + "%";
+    scorePill.textContent = "Score " + scoreCount() + "/" + answeredCount();
+  }
+
+  function renderQuestion() {
+    if (state.index >= TOTAL) {
+      showResults();
+      return;
+    }
+    qcard.classList.remove("hidden");
+    results.classList.add("hidden");
+    footerNav.classList.remove("hidden");
+
+    var idx = state.index;
+    var item = QUESTIONS[idx];
+    qnum.textContent = "Q" + String(idx + 1).padStart(2, "0");
+    qtext.textContent = item[0];
+    options.innerHTML = "";
+    feedback.textContent = "";
+    feedback.className = "feedback";
+
+    var selected = state.answers[idx];
+    var correctIdx = item[2];
+
+    item[1].forEach(function (optText, i) {
+      var btn = document.createElement("button");
+      btn.className = "opt";
+      btn.innerHTML = '<span class="badge">' + LETTERS[i] + '</span><span class="otext"></span>';
+      btn.querySelector(".otext").textContent = optText;
+      btn.setAttribute("data-i", i);
+
+      if (selected !== null) {
+        btn.disabled = true;
+        if (i === correctIdx) btn.classList.add("correct");
+        else if (i === selected) btn.classList.add("incorrect");
+        else btn.classList.add("faded");
+      }
+
+      btn.addEventListener("click", function () {
+        if (state.answers[idx] !== null) return;
+        selectAnswer(idx, i);
+      });
+
+      options.appendChild(btn);
+    });
+
+    if (selected !== null) {
+      if (selected === correctIdx) {
+        feedback.textContent = "Correct.";
+        feedback.className = "feedback is-correct";
+      } else {
+        feedback.textContent = "Not quite — the correct answer is " + LETTERS[correctIdx] + ".";
+        feedback.className = "feedback is-incorrect";
+      }
+    }
+
+    prevBtn.disabled = idx === 0;
+    nextBtn.textContent = idx === TOTAL - 1 ? "Finish" : "Next";
+
+    renderHeader();
+    saveState();
+  }
+
+  function selectAnswer(idx, choice) {
+    state.answers[idx] = choice;
+    renderQuestion();
+  }
+
+  function showResults() {
+    qcard.classList.add("hidden");
+    results.classList.remove("hidden");
+    footerNav.classList.add("hidden");
+
+    var s = scoreCount();
+    finalScore.textContent = s + "/" + TOTAL;
+    finalPct.textContent = Math.round((s / TOTAL) * 100) + "%";
+
+    reviewItems.innerHTML = "";
+    var missed = [];
+    for (var i = 0; i < TOTAL; i++) {
+      var a = state.answers[i];
+      if (a === null || a !== QUESTIONS[i][2]) missed.push(i);
+    }
+    if (missed.length === 0) {
+      reviewItems.innerHTML = '<p style="color:var(--text-dim);font-size:13px;">Every question answered correctly.</p>';
+    } else {
+      missed.forEach(function (i) {
+        var row = document.createElement("div");
+        row.className = "review-item";
+        var label = document.createElement("span");
+        label.textContent = "Q" + (i + 1) + " — " + QUESTIONS[i][0].slice(0, 46) + (QUESTIONS[i][0].length > 46 ? "…" : "");
+        var jump = document.createElement("button");
+        jump.textContent = "Review";
+        jump.addEventListener("click", function () {
+          state.index = i;
+          renderQuestion();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+        row.appendChild(label);
+        row.appendChild(jump);
+        reviewItems.appendChild(row);
+      });
+    }
+    saveState();
+  }
+
+  function buildGrid() {
+    qgrid.innerHTML = "";
+    for (var i = 0; i < TOTAL; i++) {
+      var b = document.createElement("button");
+      b.textContent = i + 1;
+      var a = state.answers[i];
+      if (a !== null) {
+        b.className = a === QUESTIONS[i][2] ? "correct" : "incorrect";
+      }
+      if (i === state.index) b.classList.add("current");
+      (function (target) {
+        b.addEventListener("click", function () {
+          state.index = target;
+          overlay.classList.remove("open");
+          renderQuestion();
+        });
+      })(i);
+      qgrid.appendChild(b);
+    }
+  }
+
+  prevBtn.addEventListener("click", function () {
+    if (state.index > 0) { state.index--; renderQuestion(); }
+  });
+  nextBtn.addEventListener("click", function () {
+    if (state.index < TOTAL - 1) { state.index++; renderQuestion(); }
+    else { state.index = TOTAL; renderQuestion(); }
+  });
+  gridBtn.addEventListener("click", function () {
+    buildGrid();
+    overlay.classList.add("open");
+  });
+  closeOverlay.addEventListener("click", function () {
+    overlay.classList.remove("open");
+  });
+  overlay.addEventListener("click", function (e) {
+    if (e.target === overlay) overlay.classList.remove("open");
+  });
+  retakeBtn.addEventListener("click", function () {
+    state.index = 0;
+    state.answers = new Array(TOTAL).fill(null);
+    saveState();
+    renderQuestion();
+    window.scrollTo({ top: 0 });
+  });
+  resetLink.addEventListener("click", function () {
+    if (confirm("Restart the quiz from question 1? Your saved answers will be cleared.")) {
+      state.index = 0;
+      state.answers = new Array(TOTAL).fill(null);
+      saveState();
+      renderQuestion();
+    }
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (overlay.classList.contains("open")) return;
+    var key = e.key.toLowerCase();
+    if (["1","2","3","4"].indexOf(key) !== -1) {
+      var choice = parseInt(key, 10) - 1;
+      if (state.index < TOTAL && state.answers[state.index] === null) selectAnswer(state.index, choice);
+    } else if (["a","b","c","d"].indexOf(key) !== -1) {
+      var choiceL = LETTERS.indexOf(key.toUpperCase());
+      if (state.index < TOTAL && state.answers[state.index] === null) selectAnswer(state.index, choiceL);
+    } else if (key === "arrowright") {
+      nextBtn.click();
+    } else if (key === "arrowleft") {
+      prevBtn.click();
+    }
+  });
+
+  loadState();
+  if (state.index > TOTAL) state.index = TOTAL;
+  renderQuestion();
+})();
+</script>
+</body>
+</html>
